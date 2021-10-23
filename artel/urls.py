@@ -15,11 +15,27 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.contrib.sitemaps.views import sitemap
+from blog.sitemaps import PostSitemap
+from .feeds import LatestPostsFeed
+from django.conf import settings
+from django.conf.urls.static import static
+
+sitemaps = {
+    "posts": PostSitemap,
+}
 
 urlpatterns = [
     path('admin/',   admin.site.urls),
     path('about',    include('blog.urls')),
     path('blog',     include('blog.urls')),
     path('en',       include('blog.urls')),
+    path('upload',   include('blog.urls')),
     path('',         include('blog.urls')),
+    path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="sitemap"),
+    path("feed/rss", LatestPostsFeed(), name="post_feed"),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)
